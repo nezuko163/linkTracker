@@ -1,0 +1,47 @@
+{
+    "title": "Custom Metrics Dashboard",
+    "editable": true,
+    "schemaVersion": 30,
+    "version": 1,
+    "refresh": "5s",
+    "templating": {
+        "list": [
+            {
+                "name": "app",
+                "type": "query",
+                "datasource": "Prometheus",
+                "refresh": 1,
+                "query": "label_values(active_links, application)",
+                "hide": 0,
+                "includeAll": false,
+                "multi": false
+            }
+        ]
+    },
+    "panels": [
+        {
+            "type": "timeseries",
+            "title": "User Messages per Second",
+            "targets": [
+                {
+                    "expr": "rate(user_messages_total[1m])",
+                    "legendFormat": "",
+                    "refId": "A"
+                }
+            ],
+            "gridPos": { "x": 0, "y": 0, "w": 12, "h": 6 }
+        },
+        {
+            "type": "timeseries",
+            "title": "Active Links by Type",
+            "targets": [
+                {
+                    "expr": "active_links{application=\"$app\"}",
+                    "legendFormat": "{{type}}",
+                    "refId": "A"
+                }
+            ],
+            "gridPos": { "x": 12, "y": 0, "w": 12, "h": 6 }
+        }
+    ]
+}

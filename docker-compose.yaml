@@ -1,0 +1,154 @@
+services:
+  scrapper:
+    build:
+      context: scrapper
+    container_name: scrapper
+    ports:
+      - '8081:8081'
+      - '8084:8084'
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres_db:5432/mydb
+      - SPRING_DATASOURCE_USERNAME=admin
+      - SPRING_DATASOURCE_PASSWORD=1234
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - GITHUB_TOKEN
+      - SO_TOKEN_KEY
+      - SO_ACCESS_TOKEN
+    depends_on:
+      - postgres_db
+      - kafka
+      - liquibase
+
+  bot:
+    build:
+      context: bot
+    container_name: bot
+    ports:
+      - '8080:8080'
+    environment:
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - SPRING_REDIS_HOST=redis
+      - SPRING_REDIS_PORT=6379
+      - SPRING_REDIS_PASSWORD=1234
+      - SCRAPPER_URL=http://scrapper:8081
+      - BOT_TOKEN
+    depends_on:
+      - kafka
+
+  postgres_db:
+    image: 'postgres:17.4'
+    container_name: postgres
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=1234
+      - POSTGRES_DB=mydb
+    restart: always
+    ports:
+      - '5432:5432'
+
+  liquibase:
+    image: liquibase/liquibase
+    container_name: liquibase_migration
+    depends_on:
+      - postgres_db
+    environment:
+      - LIQUIBASE_URL=jdbc:postgresql://postgres_db:5432/mydb
+      - LIQUIBASE_USERNAME=admin
+      - LIQUIBASE_PASSWORD=1234
+    volumes:
+      - ./scrapper/src/main/resources/db/changelog:/liquibase/changelog
+    command: >
+      --changeLogFile=changelog/db.changelog-master.yaml
+      --url=jdbc:postgresql://postgres_db:5432/mydb
+      --username=admin
+      --password=1234
+      update
+
+  redis:
+    image: redis:7.4.2
+    container_name: redis
+    ports:
+      - "6379:6379"
+    command: [ "redis-server", "--requirepass", "1234" ]
+    volumes:
+      - redis_data:/data
+
+  redisinsight:
+    image: redis/redisinsight:latest
+    container_name: redisinsight
+    ports:
+      - "5540:5540"
+    restart: always
+    depends_on:
+      - redis
+    volumes:
+      - redis_insight_data:/data
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    hostname: zookeeper
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    hostname: kafka
+    container_name: kafka
+    ports:
+      - "9092:9092"
+      - "19092:19092"
+    environment:
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,EXTERNAL://localhost:19092
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,EXTERNAL://0.0.0.0:19092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
+      KAFKA_BROKER_ID: 1
+    depends_on:
+      - zookeeper
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: kafka-ui
+    ports:
+      - "8082:8080"
+    depends_on:
+      - kafka
+    environment:
+      DYNAMIC_CONFIG_ENABLED: 'true'
+      KAFKA_CLUSTERS_0_NAME: Local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: "kafka:9092"
+      KAFKA_CLUSTERS_0_ZOOKEEPER: "zookeeper:2181"
+
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    volumes:
+      - ./metrics/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+
+
+  grafana:
+    image: grafana/grafana-oss:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_DEFAULT_THEME=light
+    volumes:
+      - ./metrics:/var/lib/grafana
+      - ./metrics/provisioning/:/etc/grafana/provisioning/
+      - ./metrics/dashboards/:/var/lib/grafana/dashboards/
+    depends_on:
+      - prometheus
+
+volumes:
+  redis_data:
+  redis_insight_data:

@@ -1,0 +1,102 @@
+app:
+  github-token: ${GITHUB_TOKEN}
+  stackoverflow:
+    key: ${SO_TOKEN_KEY}
+    access-token: ${SO_ACCESS_TOKEN}
+  items-on-page: 100
+  access-type: sql
+  messaging: kafka
+  timeout: 1500
+
+retry:
+  wait-duration: 500
+  exponential: 2.0
+  initial-interval-millis: 500
+  max-attempts: 3
+
+rate-limiter:
+  limit-for-period: 5
+  limit-refresh-period: 1
+  timeout-duration: 100
+
+
+circuit-breaker:
+  sliding-window-size: 10
+  minimum-number-of-calls: 10
+  failure-rate-threshold: 50
+  wait-duration-in-open-state: 5
+  permitted-number-of-calls-in-half-open-state: 2
+
+external:
+  api:
+    github: https://api.github.com/repos/
+    so: https://api.stackexchange.com/2.3/
+    bot: http://localhost:8080/api/v1/
+kafka:
+  topics:
+    link-updates: linkUpdates
+
+cache:
+  ttl: 3
+
+spring:
+  application:
+    name: Scrapper
+  profiles:
+    active: jpa
+  liquibase:
+    enabled: false
+    url: jdbc:postgresql://localhost:5432/mydb
+    user: admin
+    password: 1234
+    driver-class-name: org.postgresql.Driver
+    change-log: db/changelog/db.changelog-master.yaml
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/mydb
+    username: admin
+    password: 1234
+    driver-class-name: org.postgresql.Driver
+
+  kafka:
+    bootstrap-servers: localhost:19092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      bootstrap-servers: localhost:19092
+      acks: 1
+      # transactional.id: custom-tx-id
+    cloud.zookeeper:
+      config.enabled: false
+      connect-string: localhost:2181
+
+server:
+  port: 8081
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  metrics:
+    tags:
+      application: scrapper
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+  server:
+    port: 8083
+
+logging:
+  level:
+    backend.academy.scrapper.data.impl.jdbc.impl.chats: DEBUG
+    backend.academy.scrapper.data.impl.jdbc.impl.links: DEBUG
+    backend.academy.scrapper.data.impl.jdbc.impl.tracking: DEBUG
+#    backend.academy.scrapper.config: DEBUG
+
+#    backend.academy.scrapper.data.impl.jdbc.impl: DEBUG
+#    backend.academy.scrapper.data.source.remote.stackoverflow: DEBUG

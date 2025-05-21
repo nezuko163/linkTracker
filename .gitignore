@@ -1,0 +1,33 @@
+### Project ##
+!bot/src/main/java
+!**/src/test/**
+
+### Maven ###
+!.mvn/wrapper/maven-wrapper.jar
+target/
+.flattened-pom.xml
+dependency-reduced-pom.xml
+
+### IntelliJ IDEA ###
+!.idea/codeStyles/Project.xml
+!.idea/jsonSchemas.xml
+.idea/
+*.iws
+*.iml
+*.ipr
+
+### Scala SBT
+.bsp
+
+### log files ###
+*.log
+hs_err_pid*
+
+.env
+
+grafana/
+metrics/csv
+metrics/pdf
+metrics/plugins
+metrics/png
+metrics/grafana.db

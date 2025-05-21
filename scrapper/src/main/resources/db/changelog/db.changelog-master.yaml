@@ -1,0 +1,95 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: nezuko163
+      changes:
+        - sqlFile:
+            relativeToChangelogFile: true
+            path: 2025/03/create_chats_schema.sql
+
+  - changeSet:
+      id: 2
+      author: nezuko163
+      changes:
+        - sqlFile:
+            relativeToChangelogFile: true
+            path: 2025/03/create_link_schema.sql
+
+  - changeSet:
+      id: 3
+      author: nezuko163
+      changes:
+        - sqlFile:
+            relativeToChangelogFile: true
+            path: 2025/03/create_links.sql
+
+  - changeSet:
+      id: 4
+      author: nezuko163
+      changes:
+        - sqlFile:
+            relativeToChangelogFile: true
+            path: 2025/03/create_chats.sql
+  - changeSet:
+      id: 5
+      author: nezuko163
+      changes:
+        - sqlFile:
+            relativeToChangelogFile: true
+            path: 2025/03/create_tg_chats.sql
+  - changeSet:
+      id: 6
+      author: nezuko163
+      changes:
+        - sqlFile:
+            relativeToChangelogFile: true
+            path: 2025/03/create_filter.sql
+
+  - changeSet:
+      id: 7
+      author: nezuko163
+      changes:
+        - sqlFile:
+            relativeToChangelogFile: true
+            path: 2025/03/create_tags.sql
+
+  - changeSet:
+      author: nezuko163
+      id: 8
+      changes:
+        - sqlFile:
+            relativeToChangelogFile: true
+            path: 2025/03/create_tag_on_chat.sql
+
+  - changeSet:
+      author: nezuko163
+      id: 9
+      changes:
+        - sqlFile:
+            relativeToChangelogFile: true
+            path: 2025/03/create_filter_on_chat.sql
+
+  - changeSet:
+      author: nezuko163
+      id: 10
+      changes:
+        - sqlFile:
+            relativeToChangelogFile: true
+            path: 2025/03/create_so_answers_table.sql
+
+  - changeSet:
+      author: nezuko163
+      id: 11
+      changes:
+        - sqlFile:
+            relativeToChangelogFile: true
+            path: 2025/03/create_gh_issues_table.sql
+        - sqlFile:
+            relativeToChangelogFile: true
+            path: 2025/03/create_gh_pr_table.sql
+        - sqlFile:
+            relativeToChangelogFile: true
+            path: 2025/03/create_gh_branches_table.sql
+
+
+

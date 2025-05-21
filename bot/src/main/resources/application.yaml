@@ -1,0 +1,93 @@
+app:
+  telegram-token: ${BOT_TOKEN} # env variable
+  messaging: kafka
+
+
+retry:
+  wait-duration: 500
+  exponential: 2.0
+  initial-interval-millis: 500
+  max-attempts: 3
+
+rate-limiter:
+  limit-for-period: 5
+  limit-refresh-period: 1
+  timeout-duration: 100
+
+
+circuit-breaker:
+  sliding-window-size: 10
+  minimum-number-of-calls: 10
+  failure-rate-threshold: 50
+  wait-duration-in-open-state: 5
+  permitted-number-of-calls-in-half-open-state: 2
+
+kafka:
+  topics:
+    link-updates: linkUpdates
+
+cache:
+  ttl: 3
+
+external:
+  api:
+    scrapper: ${SCRAPPER_URL:http://localhost:8081}
+
+spring:
+  config:
+    import: optional:file:.env[.properties]
+  application:
+    name: Bot
+  liquibase:
+    enabled: false
+  data:
+    redis:
+      host: ${SPRING_REDIS_HOST:localhost}
+      port: 6379
+      password: 1234
+      timeout: 2000ms
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+          max-wait: 1000ms
+
+  cache:
+    type: redis
+
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:19092}
+    consumer:
+      properties:
+        enable.auto.commit: false
+        auto.offset.reset: latest
+        isolation.level: read_committed
+        key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+        value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      group-id: default
+    cloud.zookeeper:
+      config.enabled: false
+      connect-string: localhost:2181
+
+#logging:
+#  structured:
+#    format:
+#      console: ecs
+
+server:
+  port: 8080
+
+logging:
+  level:
+    backend.academy.bot.client: DEBUG
+    backend.academy.bot.repository: DEBUG
+    backend.academy.bot.cache.redis: DEBUG
+    backend.academy.bot.services: DEBUG
+#    org.springframework.data.redis: DEBUG
+#    io.lettuce.core: DEBUG
+
+springdoc:
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui
