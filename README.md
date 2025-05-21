@@ -22,14 +22,17 @@
 # Запуск приложения
 
 1) создать файл .env и записать в него такие значение
+
 - BOT_TOKEN
 - SO_TOKEN_KEY
 - SO_ACCESS_TOKEN
 - GITHUB_TOKEN
 
-2) запустить команды для сборки скраппера и бота
-mvn clean -pl scrapper -am package -DskipTests
-mvn clean -pl bot -am package -DskipTests
+2) запустить команды для сборки скраппера и бот
 
-3) запустить докер композ
+   mvn clean -pl scrapper -am package -DskipTests
+
+   mvn clean -pl bot -am package -DskipTests
+
+4) запустить докер композ
 
